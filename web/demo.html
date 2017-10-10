@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Outsourcing modular expononentiation - demo / benchmarking</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/bootstrap-theme.min.css" rel="stylesheet">
+
+        <!--<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g=" crossorigin="anonymous"> </script> -->
+        <script src="js/jquery.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="js/modexp.js"></script>
+        <script src="js/jsbn.js"></script>
+        <script src="js/main.js"></script>
+        
+    </head>
+
+    <body>
+        <div class="container" role="main" style="">
+            <div class="page-header">
+                <h3 style="margin-bottom:0px">Outsourcing Demo</h3>
+            </div>
+
+            <p>On this page, outsourcing of a single or multiple modexps can be evaluated and the performance can be compared to calculations performed locally in the browser.
+                After choosing the outsourcing protocol, enter the parameters for the modexp(s) separated by comma. When calculating multiple modexps, default
+                parameters can be set which are applied in case they are missing for any modexp.</p>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Settings and Data</h3>
+                </div>
+                <div class="panel-body" style="padding-top:5px">
+                    <div>
+                        <form id="form-modexp" class="form-horizontal">
+
+                            <h4>Outsorcing Protocol and Options</h4>
+                            <div class="form-group">
+                                <label class="control-label col-xs-2" for="select-method">Protocol</label>
+                                <div class="col-xs-4">
+                                    <select id="select-method">
+                                        <option value="direct" selected="selected">Direct</option>
+                                        <option value="nserver">N servers - blinded exponent</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                                <h4>Server</h4>
+                                <div class="form-group">
+                                    <label class="control-label col-xs-2" for="input-server">Server list</label>
+                                    <div class="col-xs-6">
+                                        <input id="input-server" class="form-control input-sm" type="url">
+                                    </div>
+                                </div>
+
+                            <h4>Parameters</h4>
+                            <p> Set the values you want to compute here. If left
+                            blank, default values (2048-bit modulo group with
+                            random base & exponent is generated at runtime).
+                            </p>
+                            <div class="form-group">
+                                <label class="control-label col-xs-2" for="input-base-default">Base</label>
+                                <div class="col-xs-10">
+                                    <input id="input-base" class="form-control input-sm" type="text" placeholder="Default base (hexadecimal)">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label col-xs-2" for="input-exponent-default">Exponent</label>
+                                <div class="col-xs-10">
+                                    <input id="input-exponent" class="form-control input-sm" type="text" placeholder="Default exponent (hexadecimal)">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label col-xs-2" for="input-modulus-default">Modulus</label>
+                                <div class="col-xs-10">
+                                    <input id="input-modulo" class="form-control input-sm" type="text" placeholder="Default modulus (hexadecimal)">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-xs-2"></div>
+                            </div>
+
+
+                            <div class="form-group">
+                                <div class="col-xs-10">
+                                    <button id="btn-calculate" type="button" class="btn btn-primary"><span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span>&nbsp;Calculate</button>
+                                    <button id="btn-calculate" type="button" class="btn btn-warning" style="display:none"><span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span>&nbsp;Remote</button>
+                                    <button id="btn-reset" type="button" class="btn btn-primary"><span class="glyphicon glyphicon-erase" aria-hidden="true"></span>&nbsp;Reset</button>
+                                </div>
+                                <div class="col-xs-1"></div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Results</h3>
+                </div>
+                <div class="panel-body">
+
+                    <div id="div-no-results">
+                        <h4>No calculation performed so far!</h4>
+                    </div>
+
+                    <div id="div-results" style="display:none">
+                        <h4>Execution Times</h4>
+                        <div id="div-time-remote" style="display:none"></div>
+                        <div id="div-time-local" style="display:none"></div>
+                        <div id="div-time-difference" style="display:none"></div>
+                        <div id="div-equal" style="display:none"></div>
+
+                        <div id="div-results-form">
+                            <form id="form-results">
+                                <div id="div-results-local" style="display:none">
+                                    <div id="div-results-local-title"></div>
+                                    <div class="col-xs-12">
+                                        <textarea id="input-results-local" class="form-control input-sm" rows="5" readonly></textarea>
+                                    </div>
+                                </div>
+                                <div id="div-results-remote" style="display:none">
+                                    <div id="div-results-remote-title"></div>
+                                    <div class="col-xs-12">
+                                        <textarea id="input-results-remote" class="form-control input-sm" rows="5" readonly></textarea>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <footer>
+            <hr style="width:50%;margin-bottom:0px">
+            <p style="text-align:center;margin:0px"><small>2017, DEDIS. Design highly inspired from Pascal Mainini's bachelor thesis.</small></p>
+        </footer>
+            </body>
+</html>
