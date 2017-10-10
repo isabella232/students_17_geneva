@@ -11,6 +11,10 @@
         <!--<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g=" crossorigin="anonymous"> </script> -->
         <script src="js/jquery.min.js"></script>
         <script src="js/bootstrap.min.js"></script>
+        <script src="js/lodash.min.js"></script>
+        <script src="js/platform.min.js"></script>
+        <script src="js/benchmark.min.js"></script>
+
         <script src="js/modexp.js"></script>
         <script src="js/jsbn.js"></script>
         <script src="js/main.js"></script>
@@ -55,26 +59,40 @@
                                 </div>
 
                             <h4>Parameters</h4>
-                            <p> Set the values you want to compute here. If left
-                            blank, default values (2048-bit modulo group with
-                            random base & exponent is generated at runtime).
+                            <p> You can customize the parameters of the
+                            benchmark here. The number of exponentiation
+                            represents how many times should the chosen
+                            technique performs the modular exponentiation.
+                            Insteand of generating n different exponents, it
+                            simply copies the same n times.
+                            Benchmarking is done regardless of this parameters
+                            The number of runs of a specific technique is
+                            determined by the benchmark.js library.
                             </p>
+                        <div class="form-group">
+                                <label class="control-label col-xs-2"
+                                    for="input-base-copies">Number of exponentiation</label>
+                                <div class="col-xs-10">
+                                    <input id="input-copies" class="form-control input-sm" type="number" placeholder="">
+                                </div>
+                            </div>
+
                             <div class="form-group">
-                                <label class="control-label col-xs-2" for="input-base-default">Base</label>
+                                <label class="control-label col-xs-2" for="input-base">Base</label>
                                 <div class="col-xs-10">
                                     <input id="input-base" class="form-control input-sm" type="text" placeholder="Default base (hexadecimal)">
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label class="control-label col-xs-2" for="input-exponent-default">Exponent</label>
+                                <label class="control-label col-xs-2" for="input-exponent">Exponent</label>
                                 <div class="col-xs-10">
                                     <input id="input-exponent" class="form-control input-sm" type="text" placeholder="Default exponent (hexadecimal)">
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label class="control-label col-xs-2" for="input-modulus-default">Modulus</label>
+                                <label class="control-label col-xs-2" for="input-modulo">Modulus</label>
                                 <div class="col-xs-10">
                                     <input id="input-modulo" class="form-control input-sm" type="text" placeholder="Default modulus (hexadecimal)">
                                 </div>
@@ -101,7 +119,7 @@
 
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Results</h3>
+                    <h3 id="result-title" class="panel-title">Results</h3>
                 </div>
                 <div class="panel-body">
 
@@ -109,34 +127,20 @@
                         <h4>No calculation performed so far!</h4>
                     </div>
 
-                    <div id="div-results" style="display:none">
+                    <div id="div-results" style="">
                         <h4>Execution Times</h4>
-                        <div id="div-time-remote" style="display:none"></div>
-                        <div id="div-time-local" style="display:none"></div>
-                        <div id="div-time-difference" style="display:none"></div>
-                        <div id="div-equal" style="display:none"></div>
-
-                        <div id="div-results-form">
-                            <form id="form-results">
-                                <div id="div-results-local" style="display:none">
-                                    <div id="div-results-local-title"></div>
-                                    <div class="col-xs-12">
-                                        <textarea id="input-results-local" class="form-control input-sm" rows="5" readonly></textarea>
-                                    </div>
-                                </div>
-                                <div id="div-results-remote" style="display:none">
-                                    <div id="div-results-remote-title"></div>
-                                    <div class="col-xs-12">
-                                        <textarea id="input-results-remote" class="form-control input-sm" rows="5" readonly></textarea>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
+                        <p id="results-stats"> </p>
+                        <div class="col-xs-6"> 
+                                        <textarea
+                                            id="results-all"
+                                            class="form-control input-sm"
+                                            rows="1" readonly></textarea> 
+                        </div> 
+                        </div> 
                     </div>
 
                 </div>
             </div>
-
         </div>
 
         <footer>

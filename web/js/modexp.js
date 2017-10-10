@@ -8,10 +8,16 @@ function newModExp(name) {
 }
 
 class ModExp {
-    constructor(base,exp,modulo) {
-        this.base = base;
-        this.exp = exp;
-        this.mod = modulo;
+    // integers is a map with the following keys:
+    // copies: the number of copies of the modular exp. one must performs
+    // base: the base biginteger
+    // exp: the exponent as biginteger
+    // mod: the modulo as biginteger
+    constructor(integers) {
+        this.base = integers.base;
+        this.exp = integers.exp;
+        this.mod = integers.modulo;
+        this.copies = integers.copies;
     }
 
     getInfo() {
@@ -21,18 +27,28 @@ class ModExp {
         return str
     }
 
+    name() {
+        throw new Error("name should be overriden")
+    }
+
     run() {
         throw new Error("Abstract ModExp can't be ran")
     }
 }
 
 class LocalModExp extends ModExp {
-    constructor(base,exp,modulo) {
-        super(base,exp,modulo);
+    constructor(integers) {
+        super(integers);
+    }
+
+    name() {
+        return "local computation with jsbn";
     }
 
     run() {
-        log("Running local modexp demo")
-        return this.base.modPow(this.exp,this.mod)
+        //log("local modexp running with " + this.copies + " copies");
+        for(var count = 0; count < this.copies; count++) {
+            this.base.modPow(this.exp,this.mod);
+        }
     }
 }
