@@ -64,16 +64,16 @@
                             represents how many times should the chosen
                             technique performs the modular exponentiation.
                             Insteand of generating n different exponents, it
-                            simply copies the same n times.
-                            Benchmarking is done regardless of this parameters
-                            The number of runs of a specific technique is
-                            determined by the benchmark.js library.
+                            simply copies the same exponent n times.
+                            This parameter has no effect on the actual number of
+                            time the experiment is ran.  The number of time an
+                            experiment is ran is determined by the benchmark.js library.
                             </p>
                         <div class="form-group">
                                 <label class="control-label col-xs-2"
                                     for="input-base-copies">Number of exponentiation</label>
                                 <div class="col-xs-10">
-                                    <input id="input-copies" class="form-control input-sm" type="number" placeholder="">
+                                    <input id="input-copies" class="form-control input-sm" type="text" placeholder="">
                                 </div>
                             </div>
 
@@ -130,7 +130,7 @@
                     <div id="div-results" style="">
                         <h4>Execution Times</h4>
                         <p id="results-stats"> </p>
-                        <div class="col-xs-6"> 
+                        <div class="col-xs-8"> 
                                         <textarea
                                             id="results-all"
                                             class="form-control input-sm"

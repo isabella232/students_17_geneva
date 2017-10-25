@@ -94,8 +94,8 @@ class SplitModExp extends ModExp {
         var splitCopies = new Array(this.copies);
         for (var i = 0; i < this.copies; i++) {
             splitCopies[i] = this.split();             
-            log("SPLIT for i = " + i);
-            log(splitCopies[i]);
+            //log("SPLIT for i = " + i);
+            //log(splitCopies[i]);
         }
         var modStr = this.mod.toString(16);
         var baseStr = this.base.toString(16);
@@ -116,7 +116,7 @@ class SplitModExp extends ModExp {
                 "modulo": modStr,
                 "modexps": modexps,
             }
-            log("Requesting modexp at url " + url);
+            //log("Requesting modexp at url " + url);
             //log(data);
             //log(JSON.stringify(data));
             promises.push($.ajax({
@@ -135,8 +135,9 @@ class SplitModExp extends ModExp {
             for(var i = 0; i < arguments.length; i++) {
                 results[i] =  arguments[i][0].Results; 
             }
-            log(results);
+            //log(results);
             that.aggregate(results);
+            //log("splitmodexp - finish");
             deferred.resolve();
         })
         .fail(function(error) {
@@ -175,7 +176,7 @@ class SplitModExp extends ModExp {
             //log("final result: " + acc.toString(16));
             //log("expected result : " + this.modexp().toString(16));
         }
-        log("SPlitModExp Aggregate done");
+        //log("SPlitModExp Aggregate done");
     }
 
     verifySplit(splits) {
