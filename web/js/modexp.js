@@ -101,6 +101,7 @@ class SplitModExp extends ModExp {
         var baseStr = this.base.toString(16);
         //log(this.getInfo());
         //log("modulo - 1 : " + this.modulo_1.toString(16)); 
+        //log("Modexp - SPLIT : " + this.copies + " operations");
         var promises = [];
         for(const [i,server] of this.servers.entries()) {
             var url = "http://" + server + "/modexp/split";

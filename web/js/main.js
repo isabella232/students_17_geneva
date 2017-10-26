@@ -75,11 +75,11 @@ function demoBenchmark(demo,cb) {
             },
         })
         .on("cycle", function(event) {
-            log("benchmark for " + String(event.target.name) + " finished !")
+            //log("benchmark for " + String(event.target.name) + " finished !")
             cb(event.target);
         })
         .on("complete",function() {
-            log("Benchmark complete! ");
+            //log("Benchmark complete! ");
         }).run({"async":true});
 }
 
