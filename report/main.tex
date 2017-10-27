@@ -109,15 +109,17 @@ code has been implemented using the JSBN library \cite{jsbn} which is the
 fastest in the mathematical open source libraries in Javascript available. Only
 three lines of code are needed to perform the computation using JSBN.  The
 server side has been implemented as a web server using the Golang programming
-language \cite{golang}. The web server listens
-for incoming HTTP POST requests from the client containing the base, exponent and modulo. 
-The web server then performs the computation using a binding to the GMP library
-\cite{gmplib} for good performance and sends back the results. The format of the
-communication is done through JSON with hexadecimal encoding of the parameters. 
+language \cite{golang}. The web server listens for incoming HTTP POST requests
+from the client containing the base, exponent and modulo.  The web server then
+performs the computation using a binding to the GMP library \cite{gmplib} for
+good performance and sends back the results. The format of the communication is
+done through JSON with hexadecimal encoding of the parameters. 
 
 The results can be found in the Figure~\ref{fig:system}. The proposed system clearly
 outperforms Javascript by an order of magnitude for any number of requested
-modular exponentations.
+modular exponentations. Even for one modular exponentiation the system
+outperforms JSBN by a factor of 3, although the simulation did not use any
+secure connection that might add a constant to the overall time.
 
 \begin{figure}[!htb]
     \begin{center}
@@ -151,11 +153,12 @@ We discuss in this section some open questions and some hints for future work.
         \end{itemize} 
     \item The current design only encompass one approach. New technologies such
         as WebAssembly \cite{wasm} enables compilation from C/C++ and Rust to a
-        low level bytecode interpretable by the browser engine. WebAssembly 
-        seems a good target platform to evaluate in this context. However,
-        WebAssembly is still in its early stage and there is only a limited
-        support from vendors and browsers. Detecting if the browser can run
-        WebAssembly could potentially open the way for a hybrid system.
+        low level bytecode interpretable by the browser engine. WebAssembly
+        might provide a browser-compatible version of the GMP library with good
+        performance. However, WebAssembly is still in its early stage and there
+        is only a limited support from vendors and browsers. Detecting if the
+        browser can run WebAssembly could potentially open the way for a hybrid
+        system.
 \end{enumerate}
 
 \section{Conclusion}
