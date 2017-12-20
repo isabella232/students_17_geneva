@@ -30,7 +30,10 @@ for fname in sys.argv[1:]:
     
 
 title = input("Title of the graph: ")
-plt.title(title,fontsize=35)
+
+if len(title) != 0:
+    plt.title(title,fontsize=35)
+
 plt.xlabel("Number of exponentiations",fontsize=23)
 plt.ylabel("Time in seconds",fontsize=23)
 plt.xticks(any_x)

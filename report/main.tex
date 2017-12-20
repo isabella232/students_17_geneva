@@ -7,7 +7,8 @@
 \usepackage{url}
 \usepackage{amsfonts}
 \usepackage{mathtools}
-\usepackage{subfig}
+\usepackage{subcaption}
+\usepackage{afterpage}
 
 \newcommand{\ZZ}{\ensuremath{\mathbb{Z}}}
 %opening
@@ -20,9 +21,9 @@
 
 \section{Introduction} \label{intro}
 
-The canton of Geneva is working on a new digital votation system called
-CHVote \cite{chvote} whose main goal is to increase the electorate confidence 
-by providing a secure, transparent and usable online voting system. The final
+The canton of Geneva is working on a new digital votation system called CHVote
+\cite{chvote} whose main goal is to increase the electorate confidence by
+providing a secure, transparent and usable online voting system. The final
 product must enable a Swiss citizen to vote on any election mandated by the
 Geneva canton using his laptop or mobile phone in a browser environment.
 
@@ -105,41 +106,65 @@ client to use only inexpensive operations.
 
 \section{Evaluation} \label{evaluation}
 
-In order to be relevant, this system must be able to outperform the performance
-of the Javascript computation in a browser. In order to evaluate the system, we
-have designed a Javascript benchmark framework enabling different strategies to be
-evaluated. The code is available on Github \cite{code}.
+\begin{figure}[ht!]
+
+   \centering
+
+   \begin{subfigure}[b]{0.8\textwidth}
+       \label{fig:plot1024}
+       \includegraphics[width=\textwidth]{plot1024}
+       \caption{1024 bits key size}
+   \end{subfigure}
+   ~
+   \begin{subfigure}[b]{0.8\textwidth}
+       \label{fig:plot2048}
+       \includegraphics[width=\textwidth]{plot2048}
+       \caption{2048 bits key size}
+   \end{subfigure}
+   ~
+   \begin{subfigure}[b]{0.8\textwidth}
+       \label{fig:plot4096}
+       \includegraphics[width=\textwidth]{plot4096}
+       \caption{4096 bits key size}
+   \end{subfigure}
+
+   \caption{\textbf{Modular exponentiation with different key sizes}. The
+   "Split" method is the splitting strategy using 3 different remote web
+   servers. The "Local" method is doing the computation in-browser with
+   Javascript.}
+
+   \label{fig:modexp}
+        
+\end{figure}
+
+In order to be relevant, this proposed approach must be able to outperform the
+performance of the Javascript computation in a browser. In order to evaluate the
+system, we have designed a Javascript benchmark framework enabling different
+strategies to be evaluated. The code is available on Github \cite{code}.
 
 The evaluation consists of comparing the time it takes to compute $N$ modular
-exponentiations with Javascript and with the proposed system. The Javascript
+exponentiations within the browser using Javascript, the "local" method, and
+with the proposed system, the "split" method. The Javascript
 code has been implemented using the JSBN library \cite{jsbn} which is the
 fastest in the mathematical open source libraries in Javascript available. Only
-three lines of code are needed to perform the computation using JSBN.  The
-server side has been implemented as a web server using the Golang programming
-language \cite{golang}. The web server listens for incoming HTTP POST requests
-from the client containing the base, exponent and modulo.  The web server then
-performs the computation using a binding to the GMP library \cite{gmplib} for
-good performance and sends back the results. The format of the communication is
-done through JSON with hexadecimal encoding of the parameters. 
+three lines of code are needed to perform the computation using JSBN. For the
+remote computation, the server side has been implemented as a web server using
+the Golang programming language \cite{golang}. The web server listens for
+incoming HTTP POST requests from the client containing the base, exponent and
+modulo.  The web server then performs the computation using a binding to the GMP
+library \cite{gmplib} for good performance and sends back the results. The
+format of the communication is done through JSON with hexadecimal encoding of
+the parameters. For this experiment, only three web servers have been deployed
+on the same machine.
 
-The results can be found in the Figure~\ref{fig:system}. The proposed system clearly
-outperforms Javascript by an order of magnitude for any number of requested
-modular exponentations. Even for one modular exponentiation the system
-outperforms JSBN by a factor of 3, although the simulation did not use any
-secure connection that might add a constant to the overall time.
-
-\begin{figure}[!htb]
-
-    \centering
-
-    \begin{center}
-        \label{fig:system}
-        \includegraphics[scale=0.25]{local_vs_split_50.png}
-        \caption{\textbf{Performance of the in-browser computation vs
-        outsourced computation}.}
-    \end{center}
-
-\end{figure}
+The results can be found in the Figure~\ref{fig:modexp}. The proposed system
+clearly outperforms Javascript by an order of magnitude for any number of
+requested modular exponentations and for any modulus sizes. For the 1024 key
+size, the fluctuations of the "split" method are due to the fact that it is ran
+over a single laptop while other processes are also active. The relatively short
+time of computation makes it difficult to get a reliable measurement but the
+experiment still shows that the split method outperform by far the local
+computation for at least 3 modular exponentiations.
 
 \section{Discussions} \label{discussions}
 
