@@ -110,11 +110,21 @@ function linkage() {
 }
 
 // getConfig returns the base, exponent and modulo from the HTML fields as
-// BigInteger, and the numbers of copies as an array.
+// BigInteger, and the numbers of copies as an array. If the exponent field is
+// empty, it generates a new one, writes it in the DOM and returns that value in
+// the config.
 function getConfig() {
     var base = new BigInteger($("#input-base").val(),16);
-    var exp = new BigInteger($("#input-exponent").val(),16);
+    if ($("#input-modulo").val().length  == 0) {
+        throw new Error("Modulo Empty !!");
+    }
     var modulo = new BigInteger($("#input-modulo").val(),16);
+
+    var exp = new BigInteger($("#input-exponent").val(),16);
+    if ($("#input-exponent").val().length == 0) {
+        exp = randomInteger(modulo.bitLength())
+        $("#input-exponent").val(exp.toString(16));
+    }
     var copies = $("#input-copies").val().split(" ").map(v => parseInt(v));
     return {base: base, exp: exp,modulo: modulo,copies: copies}
 }
@@ -132,15 +142,15 @@ function setDefaultValues() {
     $("#input-servers").val(default_servers);
 
     // random exponent
-    var arr = new Array(2048/8);
     // XXX to be avoided if possible since it seems it uses seed = time ...
-    var exponent = randomInteger();
+    var exponent = randomInteger(2048);
 
     // set default values
     $("#input-copies").val(default_copies);
     $("#input-base").val(default_base);
-    $("#input-exponent").val(exponent.toString(16));
+    //$("#input-exponent").val(exponent.toString(16));
     $("#input-modulo").val(default_q);
+    log("MODULO SIZE : " + new BigInteger($("#input-modulo").val(),16).bitLength());
 
     // hide results
     $("#div-results").hide();

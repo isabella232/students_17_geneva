@@ -153,7 +153,7 @@ class SplitModExp extends ModExp {
        var acc = new BigInteger("0");
        //log("Split mod demo:");
        for(var i = 0; i < n_1; i++) { 
-           splits[i] = randomInteger().mod(this.modulo_1);
+           splits[i] = randomInteger(this.modulo_1.bitLength()).mod(this.modulo_1);
            acc = acc.add(splits[i]).mod(this.modulo_1);
        };
        var last = new BigInteger("0");
@@ -216,8 +216,8 @@ class SplitModExp extends ModExp {
     }
 }
 
-function randomInteger() {
-    var arr = new Array(2048/8);
+function randomInteger(bitLength) {
+    var arr = new Array(bitLength/8);
     var r = new Random();
     r.nextBytes(arr);
     return new BigInteger(arr).abs();
