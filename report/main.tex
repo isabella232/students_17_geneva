@@ -7,6 +7,7 @@
 \usepackage{url}
 \usepackage{amsfonts}
 \usepackage{mathtools}
+\usepackage{subfig}
 
 \newcommand{\ZZ}{\ensuremath{\mathbb{Z}}}
 %opening
@@ -47,9 +48,9 @@ computations \cite{jsbad} and is therefore a poor executing environment for the
 task.
 
 In this work, we present an efficient way of computing these modular
-exponentation relying on multiple third party servers. This work presents our solution
-in section \ref{design}, our evaluation in section \ref{evaluation}, and finally some open
-questions to be addressed in section \ref{discussions}.
+exponentation relying on multiple third party servers. This work presents our
+solution in section \ref{design}, our evaluation in section \ref{evaluation},
+and finally some open questions to be addressed in section \ref{discussions}.
 
 \section{Design} \label{design}
 
@@ -72,12 +73,16 @@ efficient way to compute: $$ b^a \mod q $$
 
 We call $S = \{s_1,\dots,s_n\}$ the set of $n$ servers selected to help
 the client with his computation. The protocol works as follow:
+
 \begin{enumerate}
+
     \item The client creates the $n$ shares:
+
         \begin{gather}
             \nonumber r_i = \text{\textit{ random }} \in \ZZ_q^* \text{  for } i=0...n-2\\
             \nonumber r_{n-1} = {a - \sum_{i=0}^{n-2} r_i} \mod q
         \end{gather}
+
     \item The client sends a computation request to each server $s_i$ over a
         secure channel. The request sent to server $i$ contains the share $r_i$,
         the base $b$ and the modulo $q$.
@@ -85,12 +90,14 @@ the client with his computation. The protocol works as follow:
         \mod q$ and sends the response $v_i$ to the client.
     \item The client waits to receive $n$ responses and then computes the final
         result $v$ as: 
+
         \begin{align}
           \nonumber v &= \prod_{i=0}^{n-1} {v_i \mod q}\\
           \nonumber   &= b^{\sum_{i=0}^{n-1} r_i} \mod q\\
           \nonumber   &= b^{\sum_{i=0}^{n-2} r_i} * b^{r_{n-1}} \mod q\\
           \nonumber   &= b^a \mod q
         \end{align}
+
 \end{enumerate}
 
 This scheme allows an efficient outsourcing of the computation by allowing the
@@ -122,12 +129,16 @@ outperforms JSBN by a factor of 3, although the simulation did not use any
 secure connection that might add a constant to the overall time.
 
 \begin{figure}[!htb]
+
+    \centering
+
     \begin{center}
         \label{fig:system}
         \includegraphics[scale=0.25]{local_vs_split_50.png}
         \caption{\textbf{Performance of the in-browser computation vs
         outsourced computation}.}
     \end{center}
+
 \end{figure}
 
 \section{Discussions} \label{discussions}
