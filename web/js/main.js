@@ -100,12 +100,19 @@ function appendDemoResult(config, results) {
 function linkage() {
     $("#btn-calculate").click(function() {
         runAllBenchmarks();
-        /*log("Running demo " + demo.name() + " ONCE");*/
-        //var def = new $.Deferred();
-        //demo.run(def);
-        //def.promise().done(function() {
-            //log("DEMO FINISHED");
-        /*});*/
+    });
+    $("#btn-onetime").click(function() {
+        var method = $("#select-method").find(":selected").val();
+        var modexp = newModExp(method);
+        var conf = getConfig();
+        var demo = new modexp(conf);
+        log("Running demo " + demo.name() + " ONCE");
+
+        var def = new $.Deferred();
+        demo.run(def);
+        def.promise().done(function() {
+            log("ONETIME finished.");
+        });
     });
 }
 

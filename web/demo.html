@@ -15,6 +15,7 @@
         <script src="js/platform.min.js"></script>
         <script src="js/benchmark.min.js"></script>
 
+        <script src="js/gmp.js"></script>
         <script src="js/modexp.js"></script>
         <script src="js/jsbn.js"></script>
         <script src="js/main.js"></script>
@@ -46,6 +47,7 @@
                                     <select id="select-method">
                                         <option value="direct" selected="selected">Direct</option>
                                         <option value="split">N servers - blinded exponent</option>
+                                        <option value="wasm">WebAssembly GMP</option>
                                     </select>
                                 </div>
                             </div>
@@ -111,9 +113,14 @@
 
                             <div class="form-group">
                                 <div class="col-xs-10">
-                                    <button id="btn-calculate" type="button" class="btn btn-primary"><span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span>&nbsp;Calculate</button>
-                                    <button id="btn-calculate" type="button" class="btn btn-warning" style="display:none"><span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span>&nbsp;Remote</button>
-                                    <button id="btn-reset" type="button" class="btn btn-primary"><span class="glyphicon glyphicon-erase" aria-hidden="true"></span>&nbsp;Reset</button>
+                                    <button id="btn-calculate" type="button"
+                                        class="btn btn-primary"><span
+                                        class="glyphicon glyphicon-hourglass" aria-hidden="true"></span>&nbsp;Benchmark</button>
+                                    <button id="btn-onetime" type="button"
+                                        class="btn btn-primary"><span
+                                            class="glyphicon glyphicon-play"
+                                            aria-hidden="true"></span>&nbsp;Onetime run
+                                        </button>
                                 </div>
                                 <div class="col-xs-1"></div>
                             </div>

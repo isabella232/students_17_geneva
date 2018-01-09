@@ -4,6 +4,8 @@ function newModExp(name) {
             return LocalModExp
         case "split":
             return SplitModExp
+        case "wasm":
+            return WasmModExp
         default:
             log("WRONG MODEXP NAME -- FAILURE OF THE UNIVERSE");
     }
@@ -54,11 +56,70 @@ class LocalModExp extends ModExp {
     }
 
     run(deferred) {
-        //log("local modexp running with " + this.copies + " copies");
+        log("local modexp running with " + this.copies + " copies");
+        var res = null;
         for(var count = 0; count < this.copies; count++) {
-            this.base.modPow(this.exp,this.mod);
+            res = this.base.modPow(this.exp,this.mod);
         }
+        log("local --> base = " + this.base.toString(16));
+        log("local --> exp = " + this.exp.toString(16));
+        log("local --> mod = " + this.mod.toString(16));
+        log("local --> res = " + res.toString(16));
         deferred.resolve();
+    }
+}
+
+var wasmInitDone = false;
+var wasmModExpFn = null;
+Module['onRuntimeInitialized'] = function() { 
+    wasmInitDone = true
+    wasmModExpFn = Module.cwrap("modexp",null,['number','number','number']);
+};
+
+
+class WasmModExp extends ModExp {
+    constructor(config) {
+        if (!wasmInitDone) {
+            throw new Error("wasn init not done! exit.");
+        }
+        super(config);
+    }
+
+    name() {
+        return "WebAssembly w/ GMP compiled";
+    }
+
+    run(deferred) {
+        log("wasm modexp running with " + this.copies + " copies");
+        // Allocate three buffers on the heap
+        // and copy the right value for exp and base at each iteration, while
+        // keeping the modulo fixed.
+        var modStr = this.mod.toString(16);
+        var modLen = Module.lengthBytesUTF8(modStr);
+        var modBuff = Module._malloc(modLen+1);
+        Module.stringToUTF8(modStr,modBuff,modLen+1);
+
+        var baseStr = this.base.toString(16);
+        var baseBuff = Module._malloc(modLen+1);
+
+        var expStr = this.exp.toString(16);
+        var expBuff = Module._malloc(modLen+1);
+        
+        for(var count = 0; count < this.copies; count++) {
+            Module.stringToUTF8(baseStr,baseBuff,modLen+1);
+            Module.stringToUTF8(expStr,expBuff,modLen+1);
+            wasmModExpFn(baseBuff,expBuff,modBuff);
+        }
+        
+        Module._free(modBuff);
+        Module._free(baseBuff);
+        Module._free(expBuff);
+        
+        deferred.resolve();
+    }
+
+    i2wasm(integer) {
+        return allocate(intArrayFromString(integer),'i8',ALLOC_NORMAL);
     }
 }
 
@@ -69,9 +130,6 @@ class SplitModExp extends ModExp {
         this.servers = $("#input-servers").val().split(" ");
         if (this.servers.length < 2) {
             throw new Error("split mod exp can't use less than 2 servers"); 
-        }
-        if (!this.mod.isProbablePrime()) {
-            throw new Error("Modulo is not prime ?");
         }
         var v1 = new BigInteger("1");
         this.modulo_1 = new BigInteger();
@@ -222,3 +280,4 @@ function randomInteger(bitLength) {
     r.nextBytes(arr);
     return new BigInteger(arr).abs();
 }
+
