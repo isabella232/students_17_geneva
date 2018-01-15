@@ -39,19 +39,20 @@ of bits needed to represent q can lie between 1024 bits and up to 8192 bits.
 
 The potentially large number of computation on the client side is problematic in
 this context.  Indeed, modular exponentiation with a large modulo is a
-computationally expensive operation. Typical optimization in this space has been
-to provide hand written assembly code such as the GMP library \cite{gmplib}
-coded in a mix of C and assembly. Unfortunately, such code is not able to run in
-a browser environment. Therefore, the client typically has to rely on
-Javascript, an interpreted language ran in the browser context to perform these
-operations.  Unfortunately, Javascript performs quite poorly for such extensive
-computations \cite{jsbad} and is therefore a poor executing environment for the
-task.
+computationally expensive operation. Typical optimizations in this space
+consists of hand-written assembly code such as the GMP library \cite{gmplib}
+which is composed of a mix of C and assembly. Typically, any developer that wishes
+to perform modulor exponentiation has to write the code in native Javascript or
+use a Javascript library. Javascript being an interpreted language running in
+the browser context performs quite poorly in comparison with native C/asm
+code~\cite{jsbad}.
 
 In this work, we present an efficient way of computing these modular
-exponentation relying on multiple third party servers. This work presents our
-solution in section \ref{design}, our evaluation in section \ref{evaluation},
-and finally some open questions to be addressed in section \ref{discussions}.
+exponentations relying on multiple third party servers and evaluate this
+solution against the state-of-the-art methods available in the browser. This
+work presents our solution in section \ref{design}, our evaluation in section
+\ref{evaluation}, and finally some open questions to be addressed in section
+\ref{discussions}.
 
 \section{Design} \label{design}
 
@@ -87,8 +88,10 @@ the client with his computation. The protocol works as follow:
     \item The client sends a computation request to each server $s_i$ over a
         secure channel. The request sent to server $i$ contains the share $r_i$,
         the base $b$ and the modulo $q$.
+
     \item Upon reception of a request, the server simply computes $ v_i = b^r_i
         \mod q$ and sends the response $v_i$ to the client.
+
     \item The client waits to receive $n$ responses and then computes the final
         result $v$ as: 
 
@@ -108,101 +111,152 @@ client to use only inexpensive operations.
 
 \begin{figure}[ht!]
 
-   \centering
+\centering
 
-   \begin{subfigure}[b]{0.8\textwidth}
-       \label{fig:plot1024}
-       \includegraphics[width=\textwidth]{plot1024}
-       \caption{1024 bits key size}
-   \end{subfigure}
-   ~
-   \begin{subfigure}[b]{0.8\textwidth}
-       \label{fig:plot2048}
-       \includegraphics[width=\textwidth]{plot2048}
-       \caption{2048 bits key size}
-   \end{subfigure}
-   ~
-   \begin{subfigure}[b]{0.8\textwidth}
-       \label{fig:plot4096}
-       \includegraphics[width=\textwidth]{plot4096}
-       \caption{4096 bits key size}
-   \end{subfigure}
+\begin{subfigure}[b]{0.8\textwidth}
+   \label{fig:plot1024}
+   \includegraphics[width=\textwidth]{plot1024}
+   \caption{1024 bits key size}
+\end{subfigure}
+~
+\begin{subfigure}[b]{0.8\textwidth}
+   \label{fig:plot2048}
+   \includegraphics[width=\textwidth]{plot2048}
+   \caption{2048 bits key size}
+\end{subfigure}
+~
+\begin{subfigure}[b]{0.8\textwidth}
+   \label{fig:plot4096}
+   \includegraphics[width=\textwidth]{plot4096}
+   \caption{4096 bits key size}
+\end{subfigure}
 
-   \caption{\textbf{Modular exponentiation with different key sizes}. The
-   "Split" method is the splitting strategy using 3 different remote web
-   servers. The "Local" method is doing the computation in-browser with
-   Javascript.}
+\caption{\textbf{Modular exponentiation comparison between "local" and the
+    "split" method with different key sizes}. The "Split" method is the
+    splitting strategy using 3 different remote web servers. The "Local" method
+    is doing the computation in-browser with Javascript.}
 
-   \label{fig:modexp}
-        
+\label{fig:modexp:js}
+    
+\end{figure}
+
+\begin{figure}[ht!]
+
+\centering
+
+\begin{subfigure}[b]{0.8\textwidth}
+   \label{fig:plot1024_wasm}
+   \includegraphics[width=\textwidth]{plot1024}
+   \caption{1024 bits key size}
+\end{subfigure}
+~
+\begin{subfigure}[b]{0.8\textwidth}
+   \label{fig:plot2048_wasm}
+   \includegraphics[width=\textwidth]{plot2048}
+   \caption{2048 bits key size}
+\end{subfigure}
+~
+\begin{subfigure}[b]{0.8\textwidth}
+   \label{fig:plot4096_wasm}
+   \includegraphics[width=\textwidth]{plot4096}
+   \caption{4096 bits key size}
+\end{subfigure}
+
+\caption{\textbf{Modular exponentiation comparison between "WebAssembly" and the
+    "split" method with different key sizes}. The "split" method is the
+    splitting strategy using 3 different remote web servers. The "WebAssembly" method
+    is doing the computation in-browser but using the WebAssembly technology
+    within Javascript.}
+
+\label{fig:modexp:wasm}
+    
 \end{figure}
 
 In order to be relevant, this proposed approach must be able to outperform the
-performance of the Javascript computation in a browser. In order to evaluate the
+performance of the computation in a browser. In order to evaluate the
 system, we have designed a Javascript benchmark framework enabling different
 strategies to be evaluated. The code is available on Github \cite{code}.
 
 The evaluation consists of comparing the time it takes to compute $N$ modular
-exponentiations within the browser using Javascript, the "local" method, and
-with the proposed system, the "split" method. The Javascript
-code has been implemented using the JSBN library \cite{jsbn} which is the
-fastest in the mathematical open source libraries in Javascript available. Only
-three lines of code are needed to perform the computation using JSBN. For the
-remote computation, the server side has been implemented as a web server using
-the Golang programming language \cite{golang}. The web server listens for
-incoming HTTP POST requests from the client containing the base, exponent and
-modulo.  The web server then performs the computation using a binding to the GMP
-library \cite{gmplib} for good performance and sends back the results. The
-format of the communication is done through JSON with hexadecimal encoding of
-the parameters. For this experiment, only three web servers have been deployed
-on the same machine.
+exponentiations within the browser using Javascript (the "local" method), using
+WebAssembly~\cite{haas2017bringing}, a recent effort to be able to run
+applications at a near native speed in the browser, and using the proposed
+system, the "split" method. 
 
-The results can be found in the Figure~\ref{fig:modexp}. The proposed system
-clearly outperforms Javascript by an order of magnitude for any number of
-requested modular exponentations and for any modulus sizes. For the 1024 key
-size, the fluctuations of the "split" method are due to the fact that it is ran
-over a single laptop while other processes are also active. The relatively short
-time of computation makes it difficult to get a reliable measurement but the
-experiment still shows that the split method outperform by far the local
-computation for at least 3 modular exponentiations.
+\textbf{The Javascript code} has been implemented using the JSBN library
+\cite{jsbn} which is the fastest in the mathematical open source libraries in
+Javascript available.  Only three lines of code are needed to perform the
+computation using JSBN. 
+
+\textbf{The WebAssembly code} is ported from a C code base using the GMP
+library. The GMP library and the final C code have been compiled using the
+Emscripten framework~\cite{zakai2011emscripten}. Javascript Many optimizations
+have been used such making only one call from Javascript to WebAssembly for all
+computations and with optimizations flags turned on during the compilation. 
+
+\textbf{The server code} has been implemented as a web server using the Golang
+programming language \cite{golang}. The web server listens for incoming HTTP
+POST requests from the client containing the base, exponent and modulo.  The web
+server then performs the computation using a binding to the GMP library
+\cite{gmplib} for good performance and sends back the results. The servers run
+on the same machine locally without any induced latency. It is probably safe to
+add an average 50ms of latency but this work does not do it since it does not
+influence the results.The format of the communication is done through JSON with
+hexadecimal encoding of the parameters.  For this experiment, only three web
+servers have been deployed on the same machine. 
+
+The results can be found in the Figure~\ref{fig:modexp:js} and in
+Figure~\ref{fig:modexp:wasm}. The proposed system clearly outperforms Javascript
+by an order of magnitude for any number of requested modular exponentations and
+for any modulus sizes. Surprisingly, the WebAssembly's performance for a 1024
+bit key with one or two exponentiations equals the ones from the "split" method. 
+However, adding more exponentiations or using larger keys makes WebAssembly performs
+worst than the "split" method, again with a difference noted by an order of
+magnitude. Moreover, WebAssembly is still a recent technology that may not be
+supported on many majors outdated browsers.
+
+We also note that there are fluctuations of the "split" method with a 1024 bit
+key size.  We explain those fluctuations due to the fact that the experiment is
+ran over a single laptop while other processes are also active and it is very
+hard to do micro-benchmarking accurately and reliably in Javascript due to the
+interpreted nature of Javascript.  The relatively short time of computation
+makes it difficult to get a reliable
 
 \section{Discussions} \label{discussions}
 
 We discuss in this section some open questions and some hints for future work. 
 
 \begin{enumerate} 
-    \item One assumptions the system makes is that the server are
-        honest-but-curious. If we want to relieve that assumption, the system
-        needs a \textit{recovery} mechanism for the client to still be able to
-        vote.  Some solutions may include the following: 
+
+    \item \textbf{Threat model:} One assumptions the system makes is that the
+        server are honest-but-curious. If we want to relieve that assumption,
+        the system needs a \textit{recovery} mechanism for the client to still
+        be able to vote.  Some solutions may include the following: 
+
         \begin{itemize} 
+
             \item \textbf{Computing natively:} One solution can simply be to
                 perform the computation using the native Javascript engine as a
                 fallback mechanism. The client must be aware that the
                 computation went wrong so he has an explicit reason to wait
                 longer for the computation to finish.  
+
             \item \textbf{Invidividual verifiability:} Another solution can be
                 to require each servers to provide a valid NIZK proof of
                 exponentiation. In this case, this proof can be instantiated as
                 a Schnorr signature using $r_i$ as the private key and $b^{r_i}$
                 as the public key.  
+
         \end{itemize} 
-    \item The current design only encompass one approach. New technologies such
-        as WebAssembly \cite{wasm} enables compilation from C/C++ and Rust to a
-        low level bytecode interpretable by the browser engine. WebAssembly
-        might provide a browser-compatible version of the GMP library with good
-        performance. However, WebAssembly is still in its early stage and there
-        is only a limited support from vendors and browsers. Detecting if the
-        browser can run WebAssembly could potentially open the way for a hybrid
-        system.
+
 \end{enumerate}
 
 \section{Conclusion}
 
 We presented a system decentralizing an expensive computation to lightweight
 servers using the GMP computational library. The system shows a significant gain
-in performance compared to a native Javascript implementation and is therefor,
-a good target for the CHVote system.
+in performance compared to a native Javascript implementation or a WebAssembly
+compiled version and is therefor, a good target for the CHVote system.
 
 
 \bibliographystyle{plain}
