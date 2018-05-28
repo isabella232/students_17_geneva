@@ -3,8 +3,7 @@ Random = jsbn.SecureRandom;
 
 
 $(function() {
-    var modExp = new ModExp("base","exp","Modulus");
-    // console.log(modExp.getInfo());
+    setModExpMethods();
     setDefaultValues();
     linkage();
     //$("#btn-calculate").click();
@@ -19,7 +18,7 @@ function runAllBenchmarks() {
     var modexp = newModExp(method);
     var conf = getConfig();
     var globalPromise = new Promise((res,rej) => { res() });
-   
+
     // set the header line of the csv
     $("#div-no-results").hide();
     $("#div-results").show();
@@ -28,8 +27,8 @@ function runAllBenchmarks() {
     $("#results-all").attr("rows",nbRows.toString());
     // helper functions binding the demo & config of the current iteration
     var demoBenchmarkPromiseFn = function(config,demo) {
-        return function() { 
-            log("Demo " + method +": benchmark for " + 
+        return function() {
+            log("Demo " + method +": benchmark for " +
                 config.copies  + " exponentiations STARTING");
             return demoBenchmarkPromise(demo);
         }
@@ -41,10 +40,10 @@ function runAllBenchmarks() {
         }
      }
     for(var i = 0; i < conf.copies.length; i++) {
-        var demoConfig = {  
-                        base: conf.base, 
-                        exp: conf.exp, 
-                        modulo: conf.modulo, 
+        var demoConfig = {
+                        base: conf.base,
+                        exp: conf.exp,
+                        modulo: conf.modulo,
                         copies: conf.copies[i],
                      };
         var demo = new modexp(demoConfig);
@@ -143,11 +142,6 @@ function getConfig() {
 // respective fields
 // + hides the result part of the html
 function setDefaultValues() {
-    // select default algorithm
-    //$('#select-method option[value="split"]').attr("selected",true);
-    // val because input elements
-    $("#input-servers").val(default_servers);
-
     // random exponent
     // XXX to be avoided if possible since it seems it uses seed = time ...
     var exponent = randomInteger(2048);
@@ -163,15 +157,39 @@ function setDefaultValues() {
     $("#div-results").hide();
 }
 
+// setModExpMethods fills in the drop down list of methods available to compute
+// modular exponentiation. It also shows the description of each method when
+// selected.
+function setModExpMethods() {
+    ModExpNames().forEach((name,i) => {
+        var d = {
+            value: name,
+            text: name,
+        }
+        if (i == 0) {
+            d.selected = "selected";
+            var desc = ModExpDescription(name);
+            $("#method-desc").text(desc);
+        }
+        var opt = $('<option>',d);
+        $('#select-method').append(opt);
+    });
+    $('#select-method').on('change', function (e)  {
+        var name = this.value;
+        log("name selected = " + name);
+        var desc = ModExpDescription(name);
+        $("#method-desc").text(desc);
+    });
+}
+
 function log(txt) {
     console.log(txt);
 }
 
-const default_servers = "127.0.0.1:8000 127.0.0.1:8001 127.0.0.1:8002";
 //const default_servers = "127.0.0.1:8000 127.0.0.1:8001";
 // section 8.2.3 of the geneva specs, in base 16
-const default_copies = 2;
-const default_base = "2"; 
+const default_copies = "1 2 3 4 5 6 7 8 9 10";
+const default_base = "2";
 const default_q = "800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000AD3AF";
 
 /*// showResults takes a Benchmark object (from the event given in cycle).*/
@@ -188,7 +206,7 @@ const default_q = "8000000000000000000000000000000000000000000000000000000000000
     //html += "<p> <bold> Relative margin of error: </bold> " + results.stats.rme + " % </p>";
     //$("#results-stats").html(html);
     //// write all individual measurements
-    //$("#results-all").text(results.stats.sample.join(" ")); 
+    //$("#results-all").text(results.stats.sample.join(" "));
     //$("#div-no-results").hide();
     //$("#div-results").show();
 /*}*/
